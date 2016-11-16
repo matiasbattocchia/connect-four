@@ -2,11 +2,13 @@ require_relative 'matrix'
 require_relative 'player'
 require_relative 'game'
 
-EPISODES = 2
+EPISODES = 500
 ROWS     = 4
 COLUMNS  = 4
+DELTA = 1
+$t = 1500
 
-players = [Player.new(:red), Player.new(:yellow)]
+players = [Player.new(:red, :softmax), Player.new(:yellow)]
 results = []
 
 EPISODES.times do
@@ -20,9 +22,13 @@ EPISODES.times do
     turn = (turn + 1) % 2
   end
 
-  puts game, '----'
+#  puts game, '----'
 
-  results << result
+  results << result.to_s + ',' + $t.to_s
+  $t -= DELTA
 end
 
-puts(results.reduce(Hash.new(0)) { |a, b| a[b] += 1; a })
+#puts(results.reduce(Hash.new(0)) { |a, b| a[b] += 1; a })
+
+header = "resultado,temperatura\n"
+IO.write("resultados.csv", header + results.join("\n"))
