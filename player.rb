@@ -11,14 +11,27 @@ class Player
 
   def act(state, actions)
     if @strategy == :softmax
-      d = actions.map do |action|
+      exponentials = actions.map do |action|
         Math.exp(@q[state,action]/$t)
       end
 
-      z = d.inject(:+)
-      p = d.map { |element| element / z }
+      z = exponentials.inject(:+)
+      probabilities = exponentials.map { |element| element / z }
     
-      actions[p.each_with_index.max[1]]
+      accumulator = 0
+      superior_intervals = probabilities.map { |probability| accumulator += probability }
+      
+      inferior_intervals = superior_intervals.dup
+      inferior_intervals.unshift(0) # Agrega un 0 al principio.
+      inferior_intervals.pop # Quita el 1 del final.
+
+      n = rand
+      
+      actions.length.times do |i|
+        if inferior_intervals[i] <= n && n < superior_intervals[i]
+          return actions[i]
+        end
+      end 
     else
       actions.sample
     end
