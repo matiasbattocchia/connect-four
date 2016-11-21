@@ -10,28 +10,42 @@ class Player
   end
 
   def act(state, actions)
-    if @strategy == :softmax
+    case @strategy
+    when :softmax
       exponentials = actions.map do |action|
         Math.exp(@q[state,action]/$t)
       end
 
       z = exponentials.inject(:+)
       probabilities = exponentials.map { |element| element / z }
-    
+
       accumulator = 0
-      superior_intervals = probabilities.map { |probability| accumulator += probability }
-      
+
+      superior_intervals = probabilities.map do |probability|
+        accumulator += probability
+      end
+
       inferior_intervals = superior_intervals.dup
       inferior_intervals.unshift(0) # Agrega un 0 al principio.
       inferior_intervals.pop # Quita el 1 del final.
 
       n = rand
-      
+
       actions.length.times do |i|
         if inferior_intervals[i] <= n && n < superior_intervals[i]
           return actions[i]
         end
-      end 
+      end
+
+      raise "There was an Math.exp overflow."
+    when :greedy
+      if rand > $e
+        scores = actions.map { |action| @q[state, action] }
+        index  = scores.each_with_index.max[1]
+        actions[index]
+      else
+        actions.sample
+      end
     else
       actions.sample
     end
@@ -56,7 +70,7 @@ class Player
       @alpha * (reward - @q[state, action])
 
     @q[@prev_state, @prev_action] = @q[@prev_state, @prev_action] +
-      @alpha * @gamma * actions.map{ |action| @q[state, action] }.max 
+      @alpha * @gamma * actions.map{ |action| @q[state, action] }.max
 
     @prev_action = action
     @prev_state  = state
