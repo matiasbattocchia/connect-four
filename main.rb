@@ -9,9 +9,12 @@ DELTA = 1
 $t = 1500
 
 players = [Player.new(:red, :softmax), Player.new(:yellow)]
-results = []
+results = Hash.new { |h,k| h[k] = 0 }
 
-EPISODES.times do
+header = "episodio,rojo,empate,amarillo,temperatura\n"
+data = []
+
+EPISODES.times do |i|
   game = Game.new(ROWS, COLUMNS)
   turn = rand(2)
   result = nil
@@ -24,11 +27,11 @@ EPISODES.times do
 
 #  puts game, '----'
 
-  results << result.to_s + ',' + $t.to_s
+  results[result] += 1
+  data << "#{i+1},#{results[:red]},#{results[:tie]},#{results[:yellow]},#{$t}"
   $t -= DELTA
 end
 
 #puts(results.reduce(Hash.new(0)) { |a, b| a[b] += 1; a })
 
-header = "resultado,temperatura\n"
-IO.write("resultados.csv", header + results.join("\n"))
+IO.write("resultados.csv", header + data.join("\n"))
