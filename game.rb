@@ -1,4 +1,6 @@
 class Game
+  attr_reader :moves
+
   # Winning kernels.
   H = Matrix.new([1,1,1,1])
   V = Matrix.new([1],[1],[1],[1])

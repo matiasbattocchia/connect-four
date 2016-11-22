@@ -1,10 +1,15 @@
 class Player
-  def initialize(color, strategy = :random, alpha = 0.1, gamma = 0.1, reward = 100)
+  attr_reader :temperature
+
+  def initialize(color, strategy = :random,
+    alpha = 0.1, gamma = 0.1, reward = 100, &block)
+
     @color  = color
     @alpha  = alpha
     @gamma  = gamma
     @reward = reward
     @strategy = strategy
+    @block  = block
 
     @q = Matrix.new
   end
@@ -13,7 +18,7 @@ class Player
     case @strategy
     when :softmax
       exponentials = actions.map do |action|
-        Math.exp(@q[state,action]/$t)
+        Math.exp(@q[state,action]/$temperature)
       end
 
       z = exponentials.inject(:+)
@@ -39,7 +44,7 @@ class Player
 
       raise "There was an Math.exp overflow."
     when :greedy
-      if rand > $e
+      if rand > @temperature
         scores = actions.map { |action| @q[state, action] }
         index  = scores.each_with_index.max[1]
         actions[index]
@@ -54,6 +59,9 @@ class Player
   def move(game)
     state   = game.state
     actions = game.actions
+
+    @temperature = @block.call(game.moves) if @block
+
     action  = act(state, actions)
 
     result = game.send("play_#{@color}", action)
