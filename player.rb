@@ -56,11 +56,11 @@ class Player
     end
   end
 
-  def move(game)
+  def move(game, episode = nil)
     state   = game.state
     actions = game.actions
 
-    @temperature = @block.call(game.moves) if @block
+    @temperature = @block.call(episode) if @block
 
     action  = act(state, actions)
 

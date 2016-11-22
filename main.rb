@@ -16,7 +16,7 @@ def experiment(name, red_player, episodes = 1000)
     result = nil
 
     loop do
-      result = players[turn].move(game)
+      result = players[turn].move(game, i)
       break if result # :tie, :red, :yellow, nil
       turn = (turn + 1) % 2
     end
@@ -57,12 +57,12 @@ experiment('descuento_0,7_temperatura_0,1',
 
 experiment('descuento_0,7_temperatura_0,3_sube',
   Player.new(:red, :greedy, 0.1, 0.7, 100) { |i|
-  0.25 + i.to_f/100 } )
+  0.25 + i.to_f/10000 } )
 
 experiment('descuento_0,7_temperatura_0,3_baja',
   Player.new(:red, :greedy, 0.1, 0.7, 100) { |i|
-  0.35 - i.to_f/100 } )
+  0.35 - i.to_f/10000 } )
 
-#experiment('descuento_0,7_temperatura_0,3_escalón_a_0',
-  #Player.new(:red, :greedy, 0.1, 0.7, 100) { |i|
-  #i > 1500 ? 0 : 0.3 } )
+experiment('descuento_0,7_temperatura_0,3_escalón_a_0',
+  Player.new(:red, :greedy, 0.1, 0.7, 100) { |i|
+  i > 1500 ? 0 : 0.3 } )
