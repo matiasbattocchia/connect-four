@@ -1,4 +1,6 @@
 class Game
+  attr_reader :moves
+
   # Winning kernels.
   H = Matrix.new([1,1,1,1])
   V = Matrix.new([1],[1],[1],[1])
@@ -19,7 +21,7 @@ class Game
 
     @free_rows = Hash.new
 
-    @rows.each do |i|
+    @columns.each do |i|
       @free_rows[i] = 1
     end
 
@@ -37,7 +39,14 @@ class Game
 
     @free_rows[column] += 1
     @moves += 1
-    @board[row, column] = @color = color
+
+    if @board[row, column].zero?
+      @board[row, column] = @color = color
+    else
+      raise "Can't play at (#{row},#{column}), there is a " \
+        "disc occupying the place."
+    end
+
     @result = check
   end
 
@@ -68,7 +77,7 @@ class Game
           case @board[row, column]
           when  1 then 'o'
           when -1 then 'x'
-          else ' '
+          else '-'
           end
       end
 
@@ -77,8 +86,6 @@ class Game
 
     b.join("\n")
   end
-
-  private
 
   def convolution(kernel)
     if @board.rows < kernel.rows || @board.columns < kernel.columns
@@ -98,7 +105,7 @@ class Game
       end
     end
 
-    values.max
+    values.max_by { |x| x.abs }
   end
 
   def check

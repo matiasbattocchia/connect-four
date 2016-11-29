@@ -13,11 +13,14 @@ class Matrix
     end
 
     @rows = rows.size
-    @columns = rows.first&.size
+
+    if rows.first
+      @columns = rows.first.size
+    end
   end
 
   def [](row, column)
-    @matrix[[row, column]]
+    @matrix[[row, column]] || 0
   end
 
   def []=(row, column, value)
